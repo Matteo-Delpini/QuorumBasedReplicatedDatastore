@@ -3,6 +3,7 @@ package polimi.ds;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -17,6 +18,7 @@ public class CoordinatorImplementation implements CoordinatorInterface {
     Collection<ReplicaInterface> connectedReplicas;
     Integer readThreshold;
     Integer writeThreshold;
+    Registry registry;
 
     protected CoordinatorImplementation() throws RemoteException {
         connectedReplicas = new ArrayList<>();
@@ -29,7 +31,8 @@ public class CoordinatorImplementation implements CoordinatorInterface {
     }
 
     @Override
-    public void replicaConnection(ReplicaInterface replicaInterface) throws RemoteException{
+    public void replicaConnection(String replicaName) throws RemoteException, NotBoundException {
+        ReplicaInterface replicaInterface = (ReplicaInterface) registry.lookup(replicaName);
         if(!connectedReplicas.contains(replicaInterface))
             connectedReplicas.add(replicaInterface);
     }
@@ -107,10 +110,13 @@ public class CoordinatorImplementation implements CoordinatorInterface {
             return;
         }
         try {
-            System.setProperty("java.rmi.server.hostname", Inet4Address.getLocalHost().getHostAddress());
+            System.out.println();
+            System.out.println(Inet4Address.getLocalHost().getHostAddress());
+            System.setProperty("java.rmi.server.hostname", "192.168.43.141");
             CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,2);
             CoordinatorInterface coordinatorInterface = (CoordinatorInterface) UnicastRemoteObject.exportObject(coordinatorImplementation,0);
             Registry registry = LocateRegistry.createRegistry(port);
+            coordinatorImplementation.setRegistry(registry);
             registry.bind("CoordinatorService",coordinatorInterface);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -121,5 +127,9 @@ public class CoordinatorImplementation implements CoordinatorInterface {
             System.err.println("cannot find localhost ip in the network");
         }
         System.err.println("Server ready on port "+port);
+    }
+
+    private void setRegistry(Registry registry) {
+        this.registry = registry;
     }
 }

@@ -1,5 +1,6 @@
 package polimi.ds;
 
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -7,7 +8,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public class ReplicaImplementation extends UnicastRemoteObject implements ReplicaInterface{
+public class ReplicaImplementation implements ReplicaInterface{
 
     Map<Integer, Collection<Integer>> liveDB = new HashMap<>();
     Map<Integer,Integer> lastCommittedValues = new HashMap<>();
@@ -58,16 +59,21 @@ public class ReplicaImplementation extends UnicastRemoteObject implements Replic
     }
 
     public static void main(String[] args) throws RemoteException {
-        if(args.length < 2){
+        if(args.length < 3){
             System.err.println("Args must contain address and port of coordinator");
             return;
         }
+        String name = args[2];
+
         Scanner input = new Scanner(System.in);
         int print;
         ReplicaImplementation replica = new ReplicaImplementation();
         try {
             Registry registry = LocateRegistry.getRegistry(args[0],Integer.parseInt(args[1]));
+            ReplicaInterface replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replica,0);
+            registry.bind(name,replicaInterface);
             stub = (CoordinatorInterface) registry.lookup("CoordinatorService");
+            stub.replicaConnection(name);
         }catch(RemoteException e){
             System.err.println("Registry is uninitialized or unavailable");
             return;
@@ -79,9 +85,11 @@ public class ReplicaImplementation extends UnicastRemoteObject implements Replic
         catch (NotBoundException e) {
             System.err.println("Coordinator unavailable");
             return;
+        } catch (AlreadyBoundException e) {
+            System.err.println("Name "+name+" already chosen");
+            return;
         }
-        stub.replicaConnection(replica);
-            do {
+        do {
                 System.out.println("|| I'm a REPLICA || "+"\nPress 1 to print all values, 0 to exit");
                 print = Integer.parseInt(input.nextLine());
                 switch (print){
