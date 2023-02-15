@@ -1,6 +1,5 @@
 package polimi.ds;
 
-import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -59,21 +58,20 @@ public class ReplicaImplementation implements ReplicaInterface{
     }
 
     public static void main(String[] args) throws RemoteException {
-        if(args.length < 3){
+        if(args.length < 2){
             System.err.println("Args must contain address and port of coordinator");
             return;
         }
-        String name = args[2];
 
         Scanner input = new Scanner(System.in);
         int print;
         ReplicaImplementation replica = new ReplicaImplementation();
         try {
+
             Registry registry = LocateRegistry.getRegistry(args[0],Integer.parseInt(args[1]));
             ReplicaInterface replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replica,0);
-            registry.bind(name,replicaInterface);
             stub = (CoordinatorInterface) registry.lookup("CoordinatorService");
-            stub.replicaConnection(name);
+            stub.replicaConnection(replicaInterface);
         }catch(RemoteException e){
             System.err.println("Registry is uninitialized or unavailable");
             return;
@@ -84,9 +82,6 @@ public class ReplicaImplementation implements ReplicaInterface{
         }
         catch (NotBoundException e) {
             System.err.println("Coordinator unavailable");
-            return;
-        } catch (AlreadyBoundException e) {
-            System.err.println("Name "+name+" already chosen");
             return;
         }
         do {

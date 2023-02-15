@@ -3,7 +3,6 @@ package polimi.ds;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.rmi.AlreadyBoundException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -31,8 +30,7 @@ public class CoordinatorImplementation implements CoordinatorInterface {
     }
 
     @Override
-    public void replicaConnection(String replicaName) throws RemoteException, NotBoundException {
-        ReplicaInterface replicaInterface = (ReplicaInterface) registry.lookup(replicaName);
+    public void replicaConnection(ReplicaInterface replicaInterface) throws RemoteException{
         if(!connectedReplicas.contains(replicaInterface))
             connectedReplicas.add(replicaInterface);
     }
