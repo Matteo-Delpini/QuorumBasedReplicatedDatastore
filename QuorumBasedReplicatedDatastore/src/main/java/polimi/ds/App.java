@@ -1,5 +1,6 @@
 package polimi.ds;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -11,13 +12,30 @@ import java.util.Scanner;
  */
 public class App 
 {
-    private static Scanner input = new Scanner(System.in);
+    private final static Scanner input = new Scanner(System.in);
     private static CoordinatorInterface stub;
     public static void main( String[] args )
     {
+        if(args.length < 2){
+            System.err.println("Args must contain address and port of coordinator");
+            return;
+        }
         try{
-            Registry registry = LocateRegistry.getRegistry("localhost",9395);
+            Registry registry = LocateRegistry.getRegistry(args[0],Integer.parseInt(args[1]));
             stub = (CoordinatorInterface) registry.lookup("CoordinatorService");
+        }catch(RemoteException e){
+            System.err.println("Registry is uninitialized or unavailable");
+            return;
+        }
+        catch(NumberFormatException e){
+            System.err.println("Port argument must be a number");
+            return;
+        }
+        catch (NotBoundException e) {
+            System.err.println("Coordinator unavailable");
+            return;
+        }
+        try{
             int menuChoice;
             do {
                 menuChoice = menu();

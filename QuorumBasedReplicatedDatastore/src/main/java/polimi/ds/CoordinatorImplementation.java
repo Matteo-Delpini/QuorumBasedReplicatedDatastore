@@ -91,9 +91,24 @@ public class CoordinatorImplementation extends UnicastRemoteObject implements Co
         return candidate;
     }
 
-    public static void main(String[] args) throws RemoteException {
-        CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,2);
-        Registry registry = LocateRegistry.createRegistry(9395);
-        registry.rebind("CoordinatorService",coordinatorImplementation);
+    public static void main(String[] args){
+        if(args.length < 1){
+            System.err.println("Args must contain address and port of coordinator");
+            return;
+        }
+        int port;
+        try{
+            port = Integer.parseInt(args[0]);
+        }catch (NumberFormatException e){
+            System.err.println("Port argument must be a number");
+            return;
+        }
+        try {
+            CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,2);
+            Registry registry = LocateRegistry.createRegistry(port);
+            registry.rebind("CoordinatorService",coordinatorImplementation);
+        } catch (RemoteException e) {
+            System.err.println("Could not publish coordinator service");
+        }
     }
 }

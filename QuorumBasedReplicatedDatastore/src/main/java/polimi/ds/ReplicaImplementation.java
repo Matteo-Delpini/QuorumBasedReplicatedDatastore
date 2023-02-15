@@ -1,5 +1,6 @@
 package polimi.ds;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -57,13 +58,29 @@ public class ReplicaImplementation extends UnicastRemoteObject implements Replic
     }
 
     public static void main(String[] args) throws RemoteException {
+        if(args.length < 2){
+            System.err.println("Args must contain address and port of coordinator");
+            return;
+        }
         Scanner input = new Scanner(System.in);
         int print;
         ReplicaImplementation replica = new ReplicaImplementation();
-        try{
-            Registry registry = LocateRegistry.getRegistry("localhost",9395);
+        try {
+            Registry registry = LocateRegistry.getRegistry(args[0],Integer.parseInt(args[1]));
             stub = (CoordinatorInterface) registry.lookup("CoordinatorService");
-            stub.replicaConnection(replica);
+        }catch(RemoteException e){
+            System.err.println("Registry is uninitialized or unavailable");
+            return;
+        }
+        catch(NumberFormatException e){
+            System.err.println("Port argument must be a number");
+            return;
+        }
+        catch (NotBoundException e) {
+            System.err.println("Coordinator unavailable");
+            return;
+        }
+        stub.replicaConnection(replica);
             do {
                 System.out.println("|| I'm a REPLICA || "+"\nPress 1 to print all values, 0 to exit");
                 print = Integer.parseInt(input.nextLine());
@@ -76,10 +93,6 @@ public class ReplicaImplementation extends UnicastRemoteObject implements Replic
                         break;
                 }
             }while(print > 0);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
 }
