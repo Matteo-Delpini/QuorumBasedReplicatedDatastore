@@ -1,5 +1,8 @@
 package polimi.ds;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -9,7 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CoordinatorImplementation extends UnicastRemoteObject implements CoordinatorInterface {
+public class CoordinatorImplementation implements CoordinatorInterface {
 
     Collection<ReplicaInterface> connectedReplicas;
     Integer readThreshold;
@@ -104,12 +107,19 @@ public class CoordinatorImplementation extends UnicastRemoteObject implements Co
             return;
         }
         try {
+            System.setProperty("java.rmi.server.hostname", Inet4Address.getLocalHost().getHostAddress());
             CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,2);
+            CoordinatorInterface coordinatorInterface = (CoordinatorInterface) UnicastRemoteObject.exportObject(coordinatorImplementation,0);
             Registry registry = LocateRegistry.createRegistry(port);
-            System.setProperty("java.rmi.server.hostname","192.164.43.33");
-            registry.rebind("CoordinatorService",coordinatorImplementation);
+            registry.bind("CoordinatorService",coordinatorInterface);
         } catch (RemoteException e) {
-            System.err.println("Could not publish coordinator service");
+            e.printStackTrace();
+            //System.err.println("Could not publish coordinator service");
+        } catch (AlreadyBoundException e) {
+            System.err.println("There is already a coordinator in the network");
+        } catch (UnknownHostException e) {
+            System.err.println("cannot find localhost ip in the network");
         }
+        System.err.println("Server ready on port "+port);
     }
 }
