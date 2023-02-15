@@ -106,6 +106,7 @@ public class CoordinatorImplementation extends UnicastRemoteObject implements Co
         try {
             CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,2);
             Registry registry = LocateRegistry.createRegistry(port);
+            System.setProperty("java.rmi.server.hostname","192.164.43.33");
             registry.rebind("CoordinatorService",coordinatorImplementation);
         } catch (RemoteException e) {
             System.err.println("Could not publish coordinator service");
