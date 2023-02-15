@@ -62,7 +62,12 @@ public class App
         System.out.println("1. get by key" +
                 "\n2. post by key" +
                 "\n0. exit");
-        return Integer.parseInt(input.nextLine());
+        try{
+            int response = Integer.parseInt(input.nextLine());
+            return response > 0 ? response : 4;
+        }catch(NumberFormatException e){
+            return 4;
+        }
     }
 
     private static void get(){

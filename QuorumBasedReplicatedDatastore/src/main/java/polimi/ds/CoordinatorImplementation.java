@@ -110,13 +110,12 @@ public class CoordinatorImplementation implements CoordinatorInterface {
         try {
             System.out.println(Utils.getIP());
             System.setProperty("java.rmi.server.hostname", Utils.getIP());
-            CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,2);
+            CoordinatorImplementation coordinatorImplementation = new CoordinatorImplementation(1,1);
             CoordinatorInterface coordinatorInterface = (CoordinatorInterface) UnicastRemoteObject.exportObject(coordinatorImplementation,0);
             Registry registry = LocateRegistry.createRegistry(port);
             registry.bind("CoordinatorService",coordinatorInterface);
         } catch (RemoteException e) {
-            e.printStackTrace();
-            //System.err.println("Could not publish coordinator service");
+            System.err.println("Could not publish coordinator service");
         } catch (AlreadyBoundException e) {
             System.err.println("There is already a coordinator in the network");
         }

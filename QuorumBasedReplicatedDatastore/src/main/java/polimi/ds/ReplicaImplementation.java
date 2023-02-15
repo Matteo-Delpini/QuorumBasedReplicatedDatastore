@@ -11,6 +11,7 @@ import java.util.*;
 public class ReplicaImplementation implements ReplicaInterface{
 
     Map<Integer, Collection<Integer>> liveDB = new HashMap<>();
+    Map<Integer, Integer> lastWriteRequests = new HashMap<>();
     Map<Integer,Integer> lastCommittedValues = new HashMap<>();
     static CoordinatorInterface stub;
 
@@ -24,6 +25,7 @@ public class ReplicaImplementation implements ReplicaInterface{
         if(!candidateValues.contains(v))
             candidateValues.add(v);
         liveDB.put(k,candidateValues);
+        lastWriteRequests.put(k,v);
     }
 
     public synchronized Integer get(int k) throws RemoteException {
@@ -31,7 +33,8 @@ public class ReplicaImplementation implements ReplicaInterface{
     }
 
     public synchronized boolean vote(int k,int v) throws RemoteException{
-        return liveDB.containsKey(k) && liveDB.get(k).contains(v);
+        return liveDB.containsKey(k) && liveDB.get(k).contains(v)
+                && lastWriteRequests.containsKey(k) && lastWriteRequests.get(k) == v;
     }
 
     @Override
@@ -43,12 +46,15 @@ public class ReplicaImplementation implements ReplicaInterface{
         candidateValues.remove(v);
         if(!candidateValues.isEmpty())
             liveDB.put(k,candidateValues);
+        if(v == lastWriteRequests.get(k))
+            lastWriteRequests.remove(k);
     }
 
     @Override
     public synchronized void commitPut(int k, int v) throws RemoteException{
         System.out.println("Received commit command for key "+k+" value "+v);
         liveDB.remove(k);
+        lastWriteRequests.remove(k);
         lastCommittedValues.put(k, v);
     }
 
@@ -83,8 +89,7 @@ public class ReplicaImplementation implements ReplicaInterface{
 
             stub.replicaConnection(name,Utils.getIP(),port);
         }catch(RemoteException e){
-            e.printStackTrace();
-            //System.err.println("Registry is uninitialized or unavailable");
+            System.err.println("Registry is uninitialized or unavailable");
             return;
         }
         catch(NumberFormatException e){
