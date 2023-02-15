@@ -1,11 +1,12 @@
 package polimi.ds;
 
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface CoordinatorInterface extends Remote {
 
-    void replicaConnection(ReplicaInterface replicaInterface) throws RemoteException;
+    void replicaConnection(String name, String addr, int port) throws RemoteException, NotBoundException;
 
     boolean put(int k, int v) throws RemoteException;
 

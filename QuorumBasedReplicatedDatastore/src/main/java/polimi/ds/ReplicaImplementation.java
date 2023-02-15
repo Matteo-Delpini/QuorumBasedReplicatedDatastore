@@ -1,5 +1,6 @@
 package polimi.ds;
 
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -58,22 +59,37 @@ public class ReplicaImplementation implements ReplicaInterface{
     }
 
     public static void main(String[] args) throws RemoteException {
-        if(args.length < 2){
-            System.err.println("Args must contain address and port of coordinator");
+        if(args.length < 3){
+            System.err.println("Args must contain address and port of coordinator and name of replica");
             return;
         }
-
+        String name = args[2];
         Scanner input = new Scanner(System.in);
         int print;
         ReplicaImplementation replica = new ReplicaImplementation();
         try {
 
             Registry registry = LocateRegistry.getRegistry(args[0],Integer.parseInt(args[1]));
-            ReplicaInterface replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replica,0);
             stub = (CoordinatorInterface) registry.lookup("CoordinatorService");
-            stub.replicaConnection(replicaInterface);
+
+            //connection to coordinator
+            Registry registry2;
+            System.setProperty("java.rmi.server.hostname", Utils.getIP());
+            int port;
+            try{
+                registry2 = LocateRegistry.getRegistry(9395);
+                port = 9395;
+            }catch(RemoteException e){
+                registry2 = LocateRegistry.createRegistry(1099);
+                port = 1099;
+            }
+            ReplicaInterface replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replica,0);
+            registry2.bind(name,replicaInterface);
+
+            stub.replicaConnection(name,Utils.getIP(),port);
         }catch(RemoteException e){
-            System.err.println("Registry is uninitialized or unavailable");
+            e.printStackTrace();
+            //System.err.println("Registry is uninitialized or unavailable");
             return;
         }
         catch(NumberFormatException e){
@@ -82,6 +98,9 @@ public class ReplicaImplementation implements ReplicaInterface{
         }
         catch (NotBoundException e) {
             System.err.println("Coordinator unavailable");
+            return;
+        } catch (AlreadyBoundException e) {
+            System.err.println("Name already present in the registry");
             return;
         }
         do {
@@ -97,5 +116,4 @@ public class ReplicaImplementation implements ReplicaInterface{
                 }
             }while(print > 0);
     }
-
 }
