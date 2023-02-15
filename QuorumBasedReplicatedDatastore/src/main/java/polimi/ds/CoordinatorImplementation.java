@@ -6,10 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CoordinatorImplementation implements CoordinatorInterface {
 
@@ -114,11 +111,53 @@ public class CoordinatorImplementation implements CoordinatorInterface {
             CoordinatorInterface coordinatorInterface = (CoordinatorInterface) UnicastRemoteObject.exportObject(coordinatorImplementation,0);
             Registry registry = LocateRegistry.createRegistry(port);
             registry.bind("CoordinatorService",coordinatorInterface);
+            System.err.println("Server ready on port "+port);
+            menu(coordinatorImplementation);
         } catch (RemoteException e) {
             System.err.println("Could not publish coordinator service");
         } catch (AlreadyBoundException e) {
             System.err.println("There is already a coordinator in the network");
         }
-        System.err.println("Server ready on port "+port);
+    }
+
+
+    public Integer getReadThreshold() {
+        return readThreshold;
+    }
+
+    public void setReadThreshold(Integer readThreshold) {
+        this.readThreshold = readThreshold;
+    }
+
+    public Integer getWriteThreshold() {
+        return writeThreshold;
+    }
+
+    public void setWriteThreshold(Integer writeThreshold) {
+        this.writeThreshold = writeThreshold;
+    }
+
+    private static void menu(CoordinatorImplementation coordinator){
+        Scanner input = new Scanner(System.in);
+        int choice;
+        do{
+            System.out.println("CURRENT READ THRESHOLD: "+coordinator.readThreshold+"" +
+                    "\nCURRENT WRITE THRESHOLD: "+coordinator.writeThreshold);
+            System.out.println("Press 1 to change thresholds, 0 to exit");
+            choice = Integer.parseInt(input.nextLine());
+            switch (choice){
+                case 1:
+                    int r,w;
+                    System.out.println("Please insert read threshold:");
+                    r = Integer.parseInt(input.nextLine());
+                    System.out.println("Please insert write threshold:");
+                    w = Integer.parseInt(input.nextLine());
+                    coordinator.setReadThreshold(r);
+                    coordinator.setWriteThreshold(w);
+                    break;
+                case 0:
+                    System.out.println("Exiting...");
+            }
+        }while(choice != 0);
     }
 }

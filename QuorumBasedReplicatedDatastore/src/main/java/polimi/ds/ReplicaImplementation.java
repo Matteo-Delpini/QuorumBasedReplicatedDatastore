@@ -65,8 +65,8 @@ public class ReplicaImplementation implements ReplicaInterface{
     }
 
     public static void main(String[] args) throws RemoteException {
-        if(args.length < 3){
-            System.err.println("Args must contain address and port of coordinator and name of replica");
+        if(args.length < 4){
+            System.err.println("Args must contain address, port of coordinator, name of replica and port of replica");
             return;
         }
         String name = args[2];
@@ -81,9 +81,8 @@ public class ReplicaImplementation implements ReplicaInterface{
             //connection to coordinator
             Registry registry2;
             System.setProperty("java.rmi.server.hostname", Utils.getIP());
-            int port;
-            registry2 = LocateRegistry.createRegistry(1099);
-            port = 1099;
+            int port = Integer.parseInt(args[3]);
+            registry2 = LocateRegistry.createRegistry(port);
             ReplicaInterface replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replica,0);
             registry2.bind(name,replicaInterface);
 
