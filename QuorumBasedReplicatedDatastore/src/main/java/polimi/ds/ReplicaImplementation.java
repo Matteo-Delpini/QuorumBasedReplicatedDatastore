@@ -76,13 +76,8 @@ public class ReplicaImplementation implements ReplicaInterface{
             Registry registry2;
             System.setProperty("java.rmi.server.hostname", Utils.getIP());
             int port;
-            try{
-                registry2 = LocateRegistry.getRegistry(9395);
-                port = 9395;
-            }catch(RemoteException e){
-                registry2 = LocateRegistry.createRegistry(1099);
-                port = 1099;
-            }
+            registry2 = LocateRegistry.createRegistry(1099);
+            port = 1099;
             ReplicaInterface replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replica,0);
             registry2.bind(name,replicaInterface);
 
