@@ -1,4 +1,4 @@
-package it.polimi.distr-syst;
+package polimi.ds;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
