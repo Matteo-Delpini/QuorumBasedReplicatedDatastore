@@ -64,7 +64,7 @@ public class App
                 "\n0. exit");
         try{
             int response = Integer.parseInt(input.nextLine());
-            return response > 0 ? response : 4;
+            return response >= 0 ? response : 4;
         }catch(NumberFormatException e){
             return 4;
         }

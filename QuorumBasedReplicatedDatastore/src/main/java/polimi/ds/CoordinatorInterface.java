@@ -11,4 +11,6 @@ public interface CoordinatorInterface extends Remote {
     boolean put(int k, int v) throws RemoteException;
 
     Integer get(int k) throws RemoteException;
+
+    void disconnectReplica(ReplicaInterface replica)throws RemoteException;
 }
