@@ -72,7 +72,7 @@ public class ReplicaImplementation implements ReplicaInterface{
 
     public synchronized void printAllValues() throws RemoteException{
         for(Integer k : lastCommittedValues.keySet()){
-            System.out.println(lastCommittedValues.get(k)+" -");
+            System.out.println("("+k+","+lastCommittedValues.get(k)+")\t");
         }
     }
 
