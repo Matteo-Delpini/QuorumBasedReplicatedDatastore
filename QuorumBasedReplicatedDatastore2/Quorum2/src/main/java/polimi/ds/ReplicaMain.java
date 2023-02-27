@@ -49,13 +49,13 @@ public class ReplicaMain {
         }
 
         try {
+            registry.bind(name + "Client", dataStoreInterface);
             registry.bind(name + "BackEnd", replicaInterface);
             if (args.length >= 3)
                 initializeCopyReplica(replicaInterface, args[1], args[2]);
             else
                 setThresholds(replica);
 
-            registry.bind(name + "Client", dataStoreInterface);
         }catch (RemoteException e){
             System.err.println("Cannot bind interfaces");
             exit(1);
@@ -121,6 +121,7 @@ public class ReplicaMain {
             Registry registry = LocateRegistry.getRegistry(ip,port);
             ReplicaInterface accessReplica = (ReplicaInterface) registry.lookup(accessReplicaName+"BackEnd");
             accessReplica.connectReplica(replicaInterface);
+            replicaInterface.propagateReplica(accessReplica);
         } catch (RemoteException | NotBoundException e) {
             System.out.println("Cannot locate access replica at address "+ip+" with name "+accessReplicaName);
             exit(2);

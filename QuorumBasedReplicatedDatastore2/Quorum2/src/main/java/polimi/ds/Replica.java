@@ -42,6 +42,7 @@ public class Replica implements ReplicaInterface, DataStoreInterface{
 
     @Override
     public boolean put(int k, int v) throws RemoteException, InterruptedException {
+        System.out.println("Received put request for "+k+"t"+v);
         synchronized (keyStatusMap){
             while(keyStatusMap.get(k) == KeyStatus.WAITING_COMMIT)
                 keyStatusMap.wait();
