@@ -1,4 +1,6 @@
-/home/matteo/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/App.java
-/home/matteo/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/ReplicaImplementation.java
-/home/matteo/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/ReplicaInterface.java
-/home/matteo/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/CoordinatorInterface.java
+/home/matteo/Documenti/Appunti_lezioni/Distributed Systems/DistributedSnapshot/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/ReplicaImplementation.java
+/home/matteo/Documenti/Appunti_lezioni/Distributed Systems/DistributedSnapshot/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/ReplicaInterface.java
+/home/matteo/Documenti/Appunti_lezioni/Distributed Systems/DistributedSnapshot/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/Utils.java
+/home/matteo/Documenti/Appunti_lezioni/Distributed Systems/DistributedSnapshot/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/CoordinatorInterface.java
+/home/matteo/Documenti/Appunti_lezioni/Distributed Systems/DistributedSnapshot/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/App.java
+/home/matteo/Documenti/Appunti_lezioni/Distributed Systems/DistributedSnapshot/QuorumBasedReplicatedDatastore/src/main/java/polimi/ds/CoordinatorImplementation.java
