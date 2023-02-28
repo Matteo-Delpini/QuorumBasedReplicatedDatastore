@@ -14,6 +14,11 @@ import static java.lang.System.exit;
 public class ReplicaMain {
 
     private static final int port = 1099;
+    private static Replica replica;
+    private static ReplicaInterface replicaInterface;
+    private static DataStoreInterface dataStoreInterface;
+    private static ReplicaAdapter replicaAdapter;
+    private static DataStoreAdapter datastoreAdapter;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1 || args.length == 2){
@@ -21,7 +26,7 @@ public class ReplicaMain {
             exit(1);
         }
 
-        Replica replica = new Replica();
+        replica = new Replica();
         Registry registry;
         String name = args[0];
         String hostAddress = Utils.getIP();
@@ -38,11 +43,12 @@ public class ReplicaMain {
             }
         }
 
-        ReplicaInterface replicaInterface = null;
-        DataStoreInterface dataStoreInterface = null;
+
         try {
-            replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(new ReplicaAdapter(replica),0);
-            dataStoreInterface = (DataStoreInterface) UnicastRemoteObject.exportObject(new DataStoreAdapter(replica),0);
+            replicaAdapter = new ReplicaAdapter(replica);
+            datastoreAdapter = new DataStoreAdapter(replica);
+            replicaInterface = (ReplicaInterface) UnicastRemoteObject.exportObject(replicaAdapter,0);
+            dataStoreInterface = (DataStoreInterface) UnicastRemoteObject.exportObject(datastoreAdapter,0);
         } catch (RemoteException e) {
             System.err.println("Cannot export replica");
             exit(1);
@@ -52,9 +58,9 @@ public class ReplicaMain {
             registry.bind(name + "Client", dataStoreInterface);
             registry.bind(name + "BackEnd", replicaInterface);
             if (args.length >= 3)
-                initializeCopyReplica(replicaInterface, args[1], args[2]);
+                initializeCopyReplica(args[1], args[2]);
             else
-                setThresholds(replica);
+                setThresholds();
 
         }catch (RemoteException e){
             System.err.println("Cannot bind interfaces");
@@ -73,11 +79,11 @@ public class ReplicaMain {
 
         System.out.println("At anytime, press 1 to print all values, 2 to dump commit log, 0 to exit");
 
-        menu(replica,name);
+        menu(name);
         exit(0);
     }
 
-    private static void setThresholds(Replica replica) {
+    private static void setThresholds() {
         int readThreshold=-1, writeThreshold=-1;
         Scanner input =new Scanner(System.in);
         while(readThreshold <= 0 || writeThreshold <= 0){
@@ -98,7 +104,7 @@ public class ReplicaMain {
         replica.setWriteThreshold(writeThreshold);
     }
 
-    private static void menu(Replica replica,String name) throws IOException {
+    private static void menu(String name) throws IOException {
         int resp = 1;
         Scanner input =new Scanner(System.in);
 
@@ -116,7 +122,7 @@ public class ReplicaMain {
         }
     }
 
-    private static void initializeCopyReplica(ReplicaInterface replicaInterface, String ip, String accessReplicaName){
+    private static void initializeCopyReplica(String ip, String accessReplicaName){
         try {
             Registry registry = LocateRegistry.getRegistry(ip,port);
             ReplicaInterface accessReplica = (ReplicaInterface) registry.lookup(accessReplicaName+"BackEnd");
